@@ -1,8 +1,11 @@
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GetRequestAsyncCompletionHandler extends AsyncCompletionHandler<Integer>
 {
+    static Logger LOGGER = LoggerFactory.getLogger(GetRequestAsyncCompletionHandler.class);
     private String term;
 
     public GetRequestAsyncCompletionHandler(String term)
@@ -16,7 +19,6 @@ public class GetRequestAsyncCompletionHandler extends AsyncCompletionHandler<Int
         // TODO: make provision to read custom headers here.
         System.out.println("Request for term = " + term + " received.");
         System.out.println("Status Code : " + response.getStatusCode());
-        System.out.println("Response : " + response.getResponseBody());
         System.out.println("X-ProxyMesh-IP : " + response.getHeader("X-ProxyMesh-IP"));
         doSomeProcessing(response.getResponseBody());
         return 200;
@@ -30,7 +32,7 @@ public class GetRequestAsyncCompletionHandler extends AsyncCompletionHandler<Int
 
     private void doSomeProcessing(String s)
     {
-        System.out.println("Going to process text here.");
+        LOGGER.info("Going to process text here.");
         // We are doing some processing here.
     }
 

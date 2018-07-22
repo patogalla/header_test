@@ -23,7 +23,7 @@ public class Test
         for (String term : getTerms())
         {
             makeGetRequest(term);
-            Thread.sleep(new Random().nextInt(1000));
+            Thread.sleep(new Random().nextInt(10000));
         }
     }
 
@@ -31,9 +31,11 @@ public class Test
     {
 
         // TODO : make provision to set custom headers for https requests before sending
+        ProxyMeshClient filter = new ProxyMeshClient();
         AsyncHttpClientConfig clientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setProxyServer(ProxyMeshClient.getProxyServer())
-                .addRequestFilter(new ProxyMeshClient())
+                .addRequestFilter(filter)
+                .addResponseFilter(filter)
                 .build();
 
         asyncHttpClient = asyncHttpClient(clientConfig);
@@ -53,7 +55,7 @@ public class Test
         List<Param> paramList = new ArrayList<>(1);
         paramList.add(new Param("q", term));
 
-        String url = "http://www.google.com/search";
+        String url = "https://www.google.com/search";
 
         Future<Integer> whenStatusCode = asyncHttpClient.prepareGet(url)
                 .setQueryParams(paramList).execute(new GetRequestAsyncCompletionHandler(term));
