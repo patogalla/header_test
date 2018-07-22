@@ -1,4 +1,7 @@
+import com.google.common.collect.Sets;
 import org.asynchttpclient.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -8,7 +11,8 @@ import static org.asynchttpclient.Dsl.asyncHttpClient;
 public class Test
 {
 
-    private AsyncHttpClient asyncHttpClient = asyncHttpClient();
+    static Logger LOGGER = LoggerFactory.getLogger(Test.class);
+    private AsyncHttpClientConfig clientConfig = null;
 
     public static void main(String args[]) throws Exception
     {
@@ -20,44 +24,65 @@ public class Test
     {
 
         initConfig();
+        Set<Future<Integer>> responses = Sets.newConcurrentHashSet();
         for (String term : getTerms())
         {
-            makeGetRequest(term);
-            Thread.sleep(new Random().nextInt(10000));
+            responses.add(makeGetRequest(term));
+            //Thread.sleep(1000);
         }
+
+        for (Future<Integer> response: responses) {
+            response.get();
+        }
+        LOGGER.info("Finish.");
     }
 
     public void initConfig()
     {
 
         // TODO : make provision to set custom headers for https requests before sending
-        ProxyMeshClient filter = new ProxyMeshClient();
-        AsyncHttpClientConfig clientConfig = new DefaultAsyncHttpClientConfig.Builder()
+        clientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setProxyServer(ProxyMeshClient.getProxyServer())
-                .addRequestFilter(filter)
-                .addResponseFilter(filter)
+                .addRequestFilter(new ProxyMeshRequestFilter())
+                .addResponseFilter(new ProxyMeshResponseFilter())
                 .build();
 
-        asyncHttpClient = asyncHttpClient(clientConfig);
     }
 
     public Set<String> getTerms()
     {
         Set<String> set = new HashSet<String>();
-        set.add("hello");
-        set.add("hi");
+        set.add("pato");
+        set.add("cabra2");
+        set.add("cabra3");
+        set.add("cabra4");
+        set.add("cabra5");
+        set.add("cabra12");
+        set.add("cabra13");
+        set.add("cabra14");
+        set.add("cabra15");
+        set.add("cabra22");
+        set.add("cabra23");
+        set.add("cabra24");
+        set.add("cabra25");
+        set.add("cabra32");
+        set.add("cabra33");
+        set.add("cabra34");
+        set.add("cabra35");
         set.add("dog");
         return set;
     }
 
-    public void makeGetRequest(String term)
+    public Future<Integer> makeGetRequest(String term)
     {
+        LOGGER.info("Making Request : {}", term);
         List<Param> paramList = new ArrayList<>(1);
         paramList.add(new Param("q", term));
 
         String url = "https://www.google.com/search";
 
-        Future<Integer> whenStatusCode = asyncHttpClient.prepareGet(url)
+        AsyncHttpClient asyncHttpClient = asyncHttpClient(clientConfig);
+        return asyncHttpClient.prepareGet(url)
                 .setQueryParams(paramList).execute(new GetRequestAsyncCompletionHandler(term));
 
     }
