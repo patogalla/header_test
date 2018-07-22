@@ -25,9 +25,9 @@ public class ProxyMeshRequestFilter implements RequestFilter {
         LOGGER.info("EXEC Request Filter");
         //Request
         if (ProxyMeshClient.proxyIp != null) {
-            MDC.put("proxyIp", ProxyMeshClient.proxyIp);
-            LOGGER.info("Adding {} : {}", ProxyMeshClient.X_PROXY_MESH_PREFER_IP, ProxyMeshClient.proxyIp);
-            ctx.getRequest().getHeaders().add(ProxyMeshClient.X_PROXY_MESH_PREFER_IP, ProxyMeshClient.proxyIp);
+            //MDC.put("proxyIp", ProxyMeshClient.proxyIp);
+            //LOGGER.info("Adding {} : {}", ProxyMeshClient.X_PROXY_MESH_PREFER_IP, ProxyMeshClient.proxyIp);
+            //ctx.getRequest().getHeaders().add(ProxyMeshClient.X_PROXY_MESH_PREFER_IP, ProxyMeshClient.proxyIp);
         }
 
         if (!ProxyMeshClient.proxyIpBlocked.isEmpty()) {

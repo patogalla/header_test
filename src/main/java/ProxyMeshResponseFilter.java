@@ -24,25 +24,25 @@ public class ProxyMeshResponseFilter implements ResponseFilter {
     @Override
     public <T> FilterContext<T> filter(FilterContext<T> ctx) throws FilterException {
         LOGGER.info("EXEC Response Filter");
+
+        HttpHeaders responseHeaders = ctx.getResponseHeaders();
+        String newProxyIp = responseHeaders.get(ProxyMeshClient.X_PROXY_MESH_IP);
+        if (newProxyIp != null) {
+            ProxyMeshClient.proxyIp = newProxyIp;
+            MDC.put("proxyIp", ProxyMeshClient.proxyIp);
+            LOGGER.info("new {} : {}", ProxyMeshClient.X_PROXY_MESH_IP, ProxyMeshClient.proxyIp);
+        }
+
         if (ctx.getResponseStatus() != null && ctx.getResponseStatus().getStatusCode() == 200) {
             //Response SUCCESS
-            HttpHeaders responseHeaders = ctx.getResponseHeaders();
-            if(ProxyMeshClient.proxyIp == null) {
-                ProxyMeshClient.proxyIp = responseHeaders.get(ProxyMeshClient.X_PROXY_MESH_IP);
-                if(ProxyMeshClient.proxyIp != null){
-                    MDC.put("proxyIp", ProxyMeshClient.proxyIp);
-                }
-                LOGGER.info("new {} : {}", ProxyMeshClient.X_PROXY_MESH_IP, ProxyMeshClient.proxyIp);
-            }
             LOGGER.info("Status : {}", ctx.getResponseStatus().getStatusCode());
         } else if (ctx.getResponseStatus() != null && ctx.getResponseStatus().getStatusCode() != 200 && ctx.getResponseStatus().getStatusCode() != 407) {
             //Response ERROR
             ProxyMeshClient.proxyIp = null;
-            HttpHeaders responseHeaders = ctx.getResponseHeaders();
-            for (Map.Entry<String, String> entry: responseHeaders.entries()    ) {
+            for (Map.Entry<String, String> entry : responseHeaders.entries()) {
                 LOGGER.info("Header [{} , {}] :", entry.getKey(), entry.getValue());
             }
-            String blockedIp = responseHeaders.get(ProxyMeshClient.X_PROXY_MESH_IP) == null ? MDC.get("proxyIp"): responseHeaders.get(ProxyMeshClient.X_PROXY_MESH_IP);
+            String blockedIp = responseHeaders.get(ProxyMeshClient.X_PROXY_MESH_IP) == null ? MDC.get("proxyIp") : responseHeaders.get(ProxyMeshClient.X_PROXY_MESH_IP);
             if (blockedIp != null) {
                 ProxyMeshClient.proxyIpBlocked.add(blockedIp);
                 MDC.remove("proxyIp");
